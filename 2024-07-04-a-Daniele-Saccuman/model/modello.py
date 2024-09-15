@@ -107,7 +107,7 @@ class Model:
         for i in range(1, len(cammino)):
             if cammino[i].datetime.month == cammino[i - 1].datetime.month:
                 score += 200
-        return cacca
+        return score
 
 
 
