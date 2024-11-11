@@ -108,7 +108,52 @@ class Model:
             if cammino[i].datetime.month == cammino[i - 1].datetime.month:
                 score += 200
         return score
+________________________________________________________
+@staticmethod
+    def get_all_sightings(anno, minDur, maxDur):
+        cnx = DBConnect.get_connection()
+        result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """select s.*
+                        from sighting s 
+                        where year(s.`datetime`) = %s
+                        and s.duration  > %s
+                        and s.duration < %s """
+            cursor.execute(query, (anno, minDur, maxDur))
 
+            for row in cursor:
+                result.append(Sighting(**row))
+            cursor.close()
+            cnx.close()
+        return result
 
+    @staticmethod
+    def getAllEdges(anno, minDur, maxDur):
+        cnx = DBConnect.get_connection()
+        result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """select s1.id as id1, s1.duration as dur1, s2.id as id2,  s2.duration as dur2
+                        from sighting s1, sighting s2  
+                        where year(s1.`datetime`) = %s
+                        and year(s2.`datetime`) = %s
+                        and s1.id <> s2.id
+                        and s1.duration  > %s
+                        and s1.duration < %s
+                        and s2.duration  > %s
+                        and s2.duration < %s
+                        and s1.shape = s2.shape """
+            cursor.execute(query, (anno, anno, minDur, maxDur, minDur, maxDur))
+
+            for row in cursor:
+                result.append((row["id1"], row["dur1"], row["id2"], row["dur2"]))
+            cursor.close()
+            cnx.close()
+        return result
 
 
