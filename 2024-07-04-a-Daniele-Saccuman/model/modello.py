@@ -156,4 +156,47 @@ ________________________________________________________
             cnx.close()
         return result
 
+per punto c
+    def getAllDurate(anno, minDur, maxDur):
+        cnx = DBConnect.get_connection()
+        result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """select distinct (s.duration) as durata, count(s.id) as nodi
+                        from sighting s 
+                        where year(s.`datetime`) = %s
+                        and s.duration  > %s
+                        and s.duration < %s
+                        group by durata
+                        order by durata """
+            cursor.execute(query, (anno, minDur, maxDur,))
+
+            for row in cursor:
+                result.append((row["durata"], row["nodi"]))
+            cursor.close()
+            cnx.close()
+        return result
+
+    def getMedia(anno, minDur, maxDur):
+        cnx = DBConnect.get_connection()
+        result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """select avg(s.duration) as media
+                        from sighting s 
+                        where year(s.`datetime`) = %s
+                        and s.duration  > %s
+                        and s.duration < %s """
+            cursor.execute(query, (anno, minDur, maxDur,))
+
+            for row in cursor:
+                result.append(row["media"])
+            cursor.close()
+            cnx.close()
+        return result
+
 
